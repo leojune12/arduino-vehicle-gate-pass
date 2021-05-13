@@ -3,6 +3,7 @@
 #include <Servo.h>
 
 Servo servoIn;
+Servo servoOut;
 
 #define RST_PIN         9          // Configurable, see typical pin layout above
 #define SS_1_PIN        10         // Configurable, take a unused pin, only HIGH/LOW required, must be different to SS 2
@@ -20,6 +21,7 @@ MFRC522 mfrc522[NR_OF_READERS];   // Create MFRC522 instance.
 void setup() {
 
   servoIn.attach(5);
+  servoOut.attach(6);
 
   pinMode(RST_PIN, OUTPUT);
   digitalWrite(RST_PIN, LOW); // Reset
@@ -36,7 +38,12 @@ void setup() {
 }
 
 void loop() {
+  readRFID();
 
+  readSerial();
+}
+
+void readRFID() {
   for (uint8_t reader = 1; reader < NR_OF_READERS; reader++) {  // Ignore first item
 
     if (mfrc522[reader].PICC_IsNewCardPresent() && mfrc522[reader].PICC_ReadCardSerial()) {
@@ -66,4 +73,30 @@ void dump_byte_array(byte *buffer, byte bufferSize) {
     Serial.print(buffer[i] < 0x10 ? " 0" : " ");
     Serial.print(buffer[i], HEX);
   }
+}
+
+void readSerial() {
+  if (Serial.available()) {
+    int inByte = Serial.parseInt();
+    
+    if (inByte == 1) {
+      for (int i=0; i<180; i++) {
+        servoIn.write(i);
+        delay(5);
+      }
+      for (int i=180; i>0; i--) {
+        servoIn.write(i);
+        delay(5);
+      }
+    } else if (inByte == 2){
+      for (int i=0; i<180; i++) {
+        servoOut.write(i);
+        delay(5);
+      }
+      for (int i=180; i>0; i--) {
+        servoOut.write(i);
+        delay(5);
+      }
+    }
+  }  
 }
