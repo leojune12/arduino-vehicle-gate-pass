@@ -11,9 +11,17 @@ Servo servoOut;
 
 #define NR_OF_READERS   3          // Only last 2 are used
 
+int IR1 = 2;                       // Entrance IR pin
+int IR2 = 3;                       // Exit IR pin
+
 byte ssPins[] = {14, SS_1_PIN, SS_2_PIN};   // Ignore first item
 
 MFRC522 mfrc522[NR_OF_READERS];   // Create MFRC522 instance.
+
+bool gate_entrance = false;
+bool gate_exit = false;
+
+int servoSpeed = 5;
 
 /**
  * Initialize.
@@ -35,12 +43,17 @@ void setup() {
   for (uint8_t reader = 1; reader < NR_OF_READERS; reader++) {  // Ignore first item
     mfrc522[reader].PCD_Init(ssPins[reader], RST_PIN); // Init each MFRC522 card
   }
+
+  pinMode(IR1, INPUT);
+  pinMode(IR2, INPUT);
 }
 
 void loop() {
   readRFID();
 
   readSerial();
+
+  readIR();
 }
 
 void readRFID() {
@@ -80,23 +93,49 @@ void readSerial() {
     int inByte = Serial.parseInt();
     
     if (inByte == 1) {
-      for (int i=0; i<180; i++) {
+      gate_entrance = true;
+
+      for (int i=90; i>0; i--) {
         servoIn.write(i);
-        delay(5);
-      }
-      for (int i=180; i>0; i--) {
-        servoIn.write(i);
-        delay(5);
+        delay(servoSpeed);
       }
     } else if (inByte == 2){
-      for (int i=0; i<180; i++) {
+      gate_exit = true;
+
+      for (int i=90; i>0; i--) {
         servoOut.write(i);
-        delay(5);
-      }
-      for (int i=180; i>0; i--) {
-        servoOut.write(i);
-        delay(5);
+        delay(servoSpeed);
       }
     }
   }  
+}
+
+void readIR() {
+  if (gate_entrance) {
+    int reading = digitalRead(IR1);
+    if (reading == 1) {
+      gate_entrance = false;
+
+      delay(2000);
+
+      for (int i=0; i<90; i++) {
+        servoIn.write(i);
+        delay(servoSpeed);
+      }
+    }
+  }
+
+  if (gate_exit) {
+    int reading = digitalRead(IR2);
+    if (reading == 1) {
+      gate_exit = false;
+
+      delay(2000);
+
+      for (int i=0; i<90; i++) {
+        servoOut.write(i);
+        delay(servoSpeed);   
+      }
+    }
+  }
 }
