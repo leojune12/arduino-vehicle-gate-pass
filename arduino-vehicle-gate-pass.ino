@@ -11,8 +11,8 @@ Servo servoOut;
 
 #define NR_OF_READERS   3          // Only last 2 are used
 
-int IR1 = 2;                       // Entrance IR pin
-int IR2 = 3;                       // Exit IR pin
+int IR1 = 3;                       // Entrance IR pin
+int IR2 = 4;                       // Exit IR pin
 
 byte ssPins[] = {14, SS_1_PIN, SS_2_PIN};   // Ignore first item
 
