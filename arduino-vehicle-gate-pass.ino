@@ -30,7 +30,10 @@ void setup() {
 
   servoIn.attach(5);
   servoOut.attach(6);
-
+  
+  servoIn.write(0);
+  servoOut.write(0);
+  
   pinMode(RST_PIN, OUTPUT);
   digitalWrite(RST_PIN, LOW); // Reset
   delay(500);
@@ -95,14 +98,14 @@ void readSerial() {
     if (inByte == 1) {
       gate_entrance = true;
 
-      for (int i=90; i>0; i--) {
+      for (int i=0; i<90; i++) {
         servoIn.write(i);
         delay(servoSpeed);
       }
     } else if (inByte == 2){
       gate_exit = true;
 
-      for (int i=90; i>0; i--) {
+      for (int i=0; i<90; i++) {
         servoOut.write(i);
         delay(servoSpeed);
       }
@@ -118,7 +121,7 @@ void readIR() {
 
       delay(2000);
 
-      for (int i=0; i<90; i++) {
+      for (int i=90; i>0; i--) {
         servoIn.write(i);
         delay(servoSpeed);
       }
@@ -132,7 +135,7 @@ void readIR() {
 
       delay(2000);
 
-      for (int i=0; i<90; i++) {
+      for (int i=90; i>0; i--) {
         servoOut.write(i);
         delay(servoSpeed);   
       }
